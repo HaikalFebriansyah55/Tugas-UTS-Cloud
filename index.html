@@ -143,7 +143,7 @@
                         const postDiv = document.createElement('div');
                         postDiv.className = 'blog-post';
                         postDiv.innerHTML = `
-<h2><a href="post.html?name=${fileName}">${fileName.replace('.html', '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</a></h2>
+<h2><a href="post.html?name=${fileName}">${fileName.replace('.html', '').replace(/-/g, ' ')}</a></h2>
 <p class="date">${new Date(obj.LastModified).toLocaleDateString('id-ID')}</p>
 <p>Klik untuk membaca postingan ini.</p>
 `;
