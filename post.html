@@ -46,8 +46,6 @@
 
 <div class="container">
   <a href="index.html">&larr; Kembali ke Beranda</a>
-  <h1 id="title">Memuat...</h1>
-  <p class="date" id="date"></p>
   <div id="content">Sedang memuat konten...</div>
 </div>
 
@@ -75,17 +73,6 @@
         const html = data.Body.toString('utf-8');
         document.getElementById('content').innerHTML = html;
 
-        // Ubah nama file ke format judul
-        const rawTitle = postName.replace('.html', '').replace(/-/g, ' ');
-        document.getElementById('title').textContent = rawTitle.charAt(0).toUpperCase() + rawTitle.slice(1);
-
-        // Tampilkan tanggal dari metadata
-        const lastModified = new Date(data.LastModified);
-        document.getElementById('date').textContent = lastModified.toLocaleDateString('id-ID', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        });
       }
     });
   }
