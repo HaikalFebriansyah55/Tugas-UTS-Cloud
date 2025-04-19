@@ -21,24 +21,12 @@
       padding: 2rem;
       box-shadow: 0 8px 16px rgba(0,0,0,0.05);
     }
-    h1 {
-      color: #6C63FF;
-      margin-bottom: 0.5rem;
-      text-transform: capitalize;
-    }
-    .date {
-      font-size: 0.9rem;
-      color: #999;
-      margin-bottom: 1.5rem;
-    }
-    #content {
-      line-height: 1.6;
-    }
     a {
       color: #6C63FF;
       text-decoration: none;
-      display: inline-block;
-      margin-bottom: 2rem;
+    }
+    #content {
+      line-height: 1.6;
     }
   </style>
 </head>
@@ -59,20 +47,17 @@
   const postName = urlParams.get('name');
 
   if (!postName) {
-    document.getElementById('title').textContent = 'Postingan Tidak Ditemukan';
-    document.getElementById('content').innerHTML = '<p>Nama postingan tidak valid atau tidak diberikan.</p>';
+    document.getElementById('content').innerHTML = '<p>Postingan tidak ditemukan.</p>';
   } else {
     const key = prefix + postName;
 
     s3.getObject({ Bucket: bucketName, Key: key }, function(err, data) {
       if (err) {
-        document.getElementById('title').textContent = 'Gagal Memuat Postingan';
-        document.getElementById('content').innerHTML = '<p>Terjadi kesalahan saat memuat postingan.</p>';
-        console.error("S3 Error:", err);
+        document.getElementById('content').innerHTML = '<p>Gagal memuat postingan.</p>';
+        console.error("Error:", err);
       } else {
         const html = data.Body.toString('utf-8');
         document.getElementById('content').innerHTML = html;
-
       }
     });
   }
