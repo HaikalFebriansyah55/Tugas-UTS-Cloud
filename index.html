@@ -147,7 +147,6 @@
 <p class="date">${new Date(obj.LastModified).toLocaleDateString('id-ID')}</p>
 <p>Klik untuk membaca postingan ini.</p>
 `;
-                        postDiv.onclick = () => loadPost(obj.Key);
                         blogPostsContainer.appendChild(postDiv);
                     }
                 });
