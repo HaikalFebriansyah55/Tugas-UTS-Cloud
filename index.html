@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blog Inspirasi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #6C63FF;
+            --background: #f0f4f8;
+            --text: #333;
+            --card-bg: #ffffff;
+            --shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+            --border-radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 4rem 2rem 2rem;
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .blog-post {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .blog-post:hover {
+            transform: translateY(-5px);
+        }
+
+        .blog-post h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .blog-post .date {
+            font-size: 0.9rem;
+            color: #999;
+            margin-bottom: 1rem;
+        }
+
+        .blog-post p {
+            color: #555;
+        }
+
+        #post-content {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background-color: #e4e7ec;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #ddd;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .blog-post {
+                padding: 1.2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Blog Inspirasi</h1>
+        <p>Cerita, ide, dan motivasi untuk hari-harimu</p>
+    </header>
+
+    <div class="container">
+        <div id="blog-posts"></div>
+        <div id="post-content"></div>
+    </div>
+
+    <footer>
+        &copy; 2025 Blog Inspirasi. Dibuat dengan semangat & kopi ☕.
+    </footer>
+
+    <script src="Config/aws-config.js"></script>
+
+    <!-- Script utama -->
+    <script>
+        var s3 = new AWS.S3();
+        var bucketName = 'tempattest';
+        var prefix = 'post/';
+
+        const blogPostsContainer = document.getElementById('blog-posts');
+        const postContent = document.getElementById('post-content');
+
+        s3.listObjectsV2({ Bucket: bucketName, Prefix: prefix }, function (err, data) {
+            if (err) {
+                blogPostsContainer.innerHTML = "<p>Gagal mengambil daftar postingan.</p>";
+                console.error("Error:", err);
+            } else {
+                data.Contents.forEach(obj => {
+                    const fileName = obj.Key.replace(prefix, '');
+                    if (fileName) {
+                        const postDiv = document.createElement('div');
+                        postDiv.className = 'blog-post';
+                        postDiv.innerHTML = `
+<h2><a href="post.html?name=${fileName}">${fileName.replace('.html', '').replace(/-/g, ' ')}</a></h2>
+<p class="date">${new Date(obj.LastModified).toLocaleDateString('id-ID')}</p>
+<p>Klik untuk membaca postingan ini.</p>
+`;
+                        postDiv.onclick = () => loadPost(obj.Key);
+                        blogPostsContainer.appendChild(postDiv);
+                    }
+                });
+            }
+        });
+
+        function loadPost(key) {
+            s3.getObject({ Bucket: bucketName, Key: key }, function (err, data) {
+                if (err) {
+                    postContent.innerHTML = "<p>Gagal memuat postingan.</p>";
+                    console.error("Load error:", err);
+                } else {
+                    postContent.innerHTML = data.Body.toString('utf-8');
+                    window.scrollTo({ top: postContent.offsetTop - 50, behavior: 'smooth' });
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

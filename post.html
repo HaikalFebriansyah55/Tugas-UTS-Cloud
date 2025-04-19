@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Postingan Blog</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f0f4f8;
+      color: #333;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+    }
+    h1 {
+      color: #6C63FF;
+      margin-bottom: 1rem;
+    }
+    .date {
+      font-size: 0.9rem;
+      color: #999;
+      margin-bottom: 1.5rem;
+    }
+    #content {
+      line-height: 1.6;
+    }
+    a {
+      color: #6C63FF;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <a href="index.html">&larr; Kembali ke Beranda</a>
+  <h1 id="title">Memuat...</h1>
+  <p class="date" id="date"></p>
+  <div id="content">Sedang memuat konten...</div>
+</div>
+<script src="Config/aws-config.js"></script>
+<script>
+  const s3 = new AWS.S3();
+  const bucketName = 'tempattest';
+  const prefix = 'post/';
+
+  // Baca parameter nama file dari URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const postName = urlParams.get('name');
+
+  if (!postName) {
+    document.getElementById('content').innerHTML = '<p>Postingan tidak ditemukan.</p>';
+  } else {
+    const key = prefix + postName;
+
+    s3.getObject({ Bucket: bucketName, Key: key }, function(err, data) {
+      if (err) {
+        document.getElementById('content').innerHTML = '<p>Gagal memuat postingan.</p>';
+        console.error("Error:", err);
+      } else {
+        const html = data.Body.toString('utf-8');
+        document.getElementById('content').innerHTML = html;
+        document.getElementById('title').textContent = postName.replace('.html', '').replace(/-/g, ' ');
+        document.getElementById('date').textContent = new Date(data.LastModified).toLocaleDateString('id-ID');
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
