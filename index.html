@@ -153,18 +153,6 @@
                 });
             }
         });
-
-        function loadPost(key) {
-            s3.getObject({ Bucket: bucketName, Key: key }, function (err, data) {
-                if (err) {
-                    postContent.innerHTML = "<p>Gagal memuat postingan.</p>";
-                    console.error("Load error:", err);
-                } else {
-                    postContent.innerHTML = data.Body.toString('utf-8');
-                    window.scrollTo({ top: postContent.offsetTop - 50, behavior: 'smooth' });
-                }
-            });
-        }
     </script>
 </body>
 
