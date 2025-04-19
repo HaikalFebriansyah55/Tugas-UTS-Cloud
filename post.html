@@ -23,7 +23,8 @@
     }
     h1 {
       color: #6C63FF;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
+      text-transform: capitalize;
     }
     .date {
       font-size: 0.9rem;
@@ -36,6 +37,8 @@
     a {
       color: #6C63FF;
       text-decoration: none;
+      display: inline-block;
+      margin-bottom: 2rem;
     }
   </style>
 </head>
@@ -47,30 +50,42 @@
   <p class="date" id="date"></p>
   <div id="content">Sedang memuat konten...</div>
 </div>
+
 <script src="Config/aws-config.js"></script>
 <script>
   const s3 = new AWS.S3();
   const bucketName = 'tempattest';
   const prefix = 'post/';
 
-  // Baca parameter nama file dari URL
   const urlParams = new URLSearchParams(window.location.search);
   const postName = urlParams.get('name');
 
   if (!postName) {
-    document.getElementById('content').innerHTML = '<p>Postingan tidak ditemukan.</p>';
+    document.getElementById('title').textContent = 'Postingan Tidak Ditemukan';
+    document.getElementById('content').innerHTML = '<p>Nama postingan tidak valid atau tidak diberikan.</p>';
   } else {
     const key = prefix + postName;
 
     s3.getObject({ Bucket: bucketName, Key: key }, function(err, data) {
       if (err) {
-        document.getElementById('content').innerHTML = '<p>Gagal memuat postingan.</p>';
-        console.error("Error:", err);
+        document.getElementById('title').textContent = 'Gagal Memuat Postingan';
+        document.getElementById('content').innerHTML = '<p>Terjadi kesalahan saat memuat postingan.</p>';
+        console.error("S3 Error:", err);
       } else {
         const html = data.Body.toString('utf-8');
         document.getElementById('content').innerHTML = html;
-        document.getElementById('title').textContent = postName.replace('.html', '').replace(/-/g, ' ');
-        document.getElementById('date').textContent = new Date(data.LastModified).toLocaleDateString('id-ID');
+
+        // Ubah nama file ke format judul
+        const rawTitle = postName.replace('.html', '').replace(/-/g, ' ');
+        document.getElementById('title').textContent = rawTitle.charAt(0).toUpperCase() + rawTitle.slice(1);
+
+        // Tampilkan tanggal dari metadata
+        const lastModified = new Date(data.LastModified);
+        document.getElementById('date').textContent = lastModified.toLocaleDateString('id-ID', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
       }
     });
   }
